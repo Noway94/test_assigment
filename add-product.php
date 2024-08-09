@@ -43,12 +43,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <title>Add Product</title>
     <link rel="stylesheet" href="styles.css">
     <style>
-        body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    margin: 0;
-    padding: 0;
-}
 
 .container {
     width: 100%;
