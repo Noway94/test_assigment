@@ -14,6 +14,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $length = $_POST['length'];
     $dimensions = $height . 'x' . $width . 'x' . $length;
 
+       // Check if any of the required fields are empty
+       if (empty($sku) || empty($name) || empty($price) || empty($type) || 
+       ($type == 'DVD' && empty($size_mb)) || 
+       ($type == 'Book' && empty($weight_kg)) || 
+       ($type == 'Furniture' && (empty($height) || empty($width) || empty($length)))) {
+       echo "All fields are required.";
+   } else {
     switch ($type) {
         case 'DVD':
             $product = new DVD($sku, $name, $price, $size_mb);
@@ -25,7 +32,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $product = new Furniture($sku, $name, $price, $dimensions);
             break;
     }
-
+   }
     if ($product->save()) {
         header("Location: index.php");
         exit();
@@ -155,7 +162,7 @@ button:hover {
 
                 <div class="form-group">
                     <label for="price">Price ($):</label>
-                    <input type="number" step="0.01" id="price" name="price" required>
+                    <input type="number" step="0.01" id="price" min='1' name="price" required>
                 </div>
 
             
