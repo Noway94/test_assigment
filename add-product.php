@@ -13,33 +13,35 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $width = $_POST['width'];
     $length = $_POST['length'];
     $dimensions = $height . 'x' . $width . 'x' . $length;
- 
-       // Check if any of the required fields are empty
-       if (empty($sku) || empty($name) || empty($price) || empty($type) || 
-       ($type == 'DVD' && empty($size_mb)) || 
-       ($type == 'Book' && empty($weight_kg)) || 
-       ($type == 'Furniture' && (empty($height) || empty($width) || empty($length)))) 
-       echo "All fields are required.";
-   
-    switch ($type) {
-        case 'DVD':
-            $product = new DVD($sku, $name, $price, $size_mb);
-            break;
-        case 'Book':
-            $product = new Book($sku, $name, $price, $weight_kg);
-            break;
-        case 'Furniture':
-            $product = new Furniture($sku, $name, $price, $dimensions);
-            break;
-    }
-   
-    if ($product->save()) {
-        header("Location: index.php");
-        exit();
+
+    // Check if any of the required fields are empty or equal to 0
+    if (empty($sku) || empty($name) || empty($price) || $price == 0 || empty($type) || 
+        ($type == 'DVD' && (empty($size_mb) || $size_mb == 0)) || 
+        ($type == 'Book' && (empty($weight_kg) || $weight_kg == 0)) || 
+        ($type == 'Furniture' && (empty($height) || $height == 0 || empty($width) || $width == 0 || empty($length) || $length == 0))) {
+        echo "All fields are required and cannot be zero.";
     } else {
-        echo "Error adding product.";
+        switch ($type) {
+            case 'DVD':
+                $product = new DVD($sku, $name, $price, $size_mb);
+                break;
+            case 'Book':
+                $product = new Book($sku, $name, $price, $weight_kg);
+                break;
+            case 'Furniture':
+                $product = new Furniture($sku, $name, $price, $dimensions);
+                break;
+        }
+
+        if ($product->save()) {
+            header("Location: index.php");
+            exit();
+        } else {
+            echo "Error adding product.";
+        }
     }
 }
+
 ?>
 
 <!DOCTYPE html>
