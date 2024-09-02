@@ -1,5 +1,6 @@
 <?php
 include_once 'db.php';
+include_once 'Product.php';
 
 $database = new Database();
 $conn = $database->getConnection();
@@ -10,7 +11,20 @@ $stmt->execute();
 
 $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+function createProduct($productData) {
+    switch ($productData['type']) {
+        case 'DVD':
+            return new DVD($productData['sku'], $productData['name'], $productData['price'], $productData['size_mb']);
+        case 'Book':
+            return new Book($productData['sku'], $productData['name'], $productData['price'], $productData['weight_kg']);
+        case 'Furniture':
+            return new Furniture($productData['sku'], $productData['name'], $productData['price'], $productData['dimensions']);
+        default:
+            return null;
+    }
+}
 
+$productObjects = array_map('createProduct', $products);
 ?>
 
 <!DOCTYPE html>
@@ -23,32 +37,21 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </head>
 <body>
     <div class="container">
-        
-         <div class="btns_">
-       <button id="add-product-btn" onclick="window.location.href='add-product.php'">ADD</button> 
-        <button id="mass-delete-btn">MASS DELETE</button>
+        <div class="btns_">
+            <button id="add-product-btn" onclick="window.location.href='add-product.php'">ADD</button>
+            <button id="mass-delete-btn">MASS DELETE</button>
         </div>
         <h1>Product List</h1>
         <hr>
         <div id="product-list">
-            <?php foreach ($products as $product): ?>
+            <?php foreach ($productObjects as $product): ?>
                 <div class="product-card">
                     <input type="checkbox" class="delete-checkbox">
                     <div class="product-details">
-                        <span class="product-sku"><?php echo htmlspecialchars($product['sku']); ?></span>
-                        <span class="product-name"><?php echo htmlspecialchars($product['name']); ?></span>
-                        <span class="product-price">$<?php echo htmlspecialchars($product['price']); ?></span>
-                        <span class="product-attribute">
-                            <?php
-                            if ($product['type'] == 'DVD') {
-                                echo "Size: " . htmlspecialchars($product['size_mb']) . " MB";
-                            } elseif ($product['type'] == 'Book') {
-                                echo "Weight: " . htmlspecialchars($product['weight_kg']) . " Kg";
-                            } elseif ($product['type'] == 'Furniture') {
-                                echo "Dimensions: " . htmlspecialchars($product['dimensions']) ." CM";
-                            }
-                            ?>
-                        </span>
+                        <span class="product-sku"><?php echo htmlspecialchars($product->getSku()); ?></span>
+                        <span class="product-name"><?php echo htmlspecialchars($product->getName()); ?></span>
+                        <span class="product-price">$<?php echo htmlspecialchars($product->getPrice()); ?></span>
+                        <span class="product-attribute"><?php echo htmlspecialchars($product->getAttribute()); ?></span>
                     </div>
                 </div>
             <?php endforeach; ?>
@@ -56,7 +59,6 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
 
     <?php include('components/footer.php') ?>
-
 
     <script src="script.js"></script>
 </body>
