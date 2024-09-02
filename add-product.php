@@ -1,6 +1,8 @@
 <?php
 include_once 'Product.php';
 
+include_once 'ProductFactory.php';
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $sku = $_POST['sku'];
     $name = $_POST['name'];
@@ -20,7 +22,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         ($type == 'Furniture' && (empty($height) || $height == 0 || empty($width) || $width == 0 || empty($length) || $length == 0))) {
         echo "All fields are required and cannot be zero.";
     } else {
-        $product = createProduct($sku, $name, $price, $type, $size_mb, $weight_kg, $dimensions);
+        $product = ProductFactory::createProduct([
+            'sku' => $sku,
+            'name' => $name,
+            'price' => $price,
+            'type' => $type,
+            'size_mb' => $size_mb,
+            'weight_kg' => $weight_kg,
+            'dimensions' => $dimensions
+        ]);
 
         if ($product && $product->save()) {
             header("Location: index.php");
@@ -28,19 +38,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         } else {
             echo "Error adding product.";
         }
-    }
-}
-
-function createProduct($sku, $name, $price, $type, $size_mb, $weight_kg, $dimensions) {
-    switch ($type) {
-        case 'DVD':
-            return new DVD($sku, $name, $price, $size_mb);
-        case 'Book':
-            return new Book($sku, $name, $price, $weight_kg);
-        case 'Furniture':
-            return new Furniture($sku, $name, $price, $dimensions);
-        default:
-            return null;
     }
 }
 ?>
@@ -53,7 +50,6 @@ function createProduct($sku, $name, $price, $type, $size_mb, $weight_kg, $dimens
     <title>Add Product</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="style-add-product.css">
-
 </head>
 <body>
     <div class="container">
@@ -109,8 +105,6 @@ function createProduct($sku, $name, $price, $type, $size_mb, $weight_kg, $dimens
     </div>
 
     <?php include('components/footer.php') ?>
-    <script src="addProducts.js">
-
-    </script>
+    <script src="addProducts.js"></script>
 </body>
 </html>

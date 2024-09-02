@@ -1,6 +1,7 @@
 <?php
 include_once 'db.php';
 include_once 'Product.php';
+include_once 'ProductFactory.php';
 
 $database = new Database();
 $conn = $database->getConnection();
@@ -10,21 +11,7 @@ $stmt = $conn->prepare($query);
 $stmt->execute();
 
 $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-function createProduct($productData) {
-    switch ($productData['type']) {
-        case 'DVD':
-            return new DVD($productData['sku'], $productData['name'], $productData['price'], $productData['size_mb']);
-        case 'Book':
-            return new Book($productData['sku'], $productData['name'], $productData['price'], $productData['weight_kg']);
-        case 'Furniture':
-            return new Furniture($productData['sku'], $productData['name'], $productData['price'], $productData['dimensions']);
-        default:
-            return null;
-    }
-}
-
-$productObjects = array_map('createProduct', $products);
+$productObjects = array_map('ProductFactory::createProduct', $products);
 ?>
 
 <!DOCTYPE html>
